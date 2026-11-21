@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Parenting Workshop - Live Poll</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #e0e7ff;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-active: #6366f1;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 180px);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 20px 16px 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .header-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            margin-bottom: 12px;
+        }
+
+        .question {
+            font-size: 19px;
+            font-weight: 800;
+            line-height: 1.4;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .prompt-blank {
+            color: var(--primary);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Options List */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .option-item {
+            position: relative;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 16px 16px 52px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .option-item:active {
+            transform: scale(0.98);
+        }
+
+        .option-item.selected {
+            border-color: var(--border-active);
+            background: #f5f3ff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+        }
+
+        .custom-radio {
+            position: absolute;
+            left: 18px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-item.selected .custom-radio {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        .custom-radio::after {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s;
+        }
+
+        .option-item.selected .custom-radio::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .option-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #334155;
+            line-height: 1.35;
+        }
+
+        .option-item.selected .option-text {
+            color: var(--primary-dark);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.35);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn:not(:disabled):active {
+            transform: scale(0.98);
+        }
+
+        /* Success & Status Views */
+        .status-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 24px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        .status-icon {
+            font-size: 54px;
+            margin-bottom: 16px;
+            animation: bounce 1.2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .status-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .status-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .user-vote-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .user-vote-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .user-vote-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        #config-alert {
+            display: none;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="config-alert">
+        <strong>⚠️ Setup needed:</strong> Please paste your Firebase credentials into <code>firebase-config.js</code>.
+    </div>
+
+    <!-- Active Voting Section -->
+    <div id="voting-section">
+        <div class="header-card">
+            <span class="badge">Activity 1 • Break The Ice</span>
+            <h1 class="question" id="poll-question">Loading question...</h1>
+            <p class="subtitle">Select the one that resonates most with you</p>
+        </div>
+
+        <div class="options-list" id="options-container">
+            <!-- Options dynamically loaded -->
+        </div>
+
+        <button class="submit-btn" id="submit-btn" disabled>
+            <span>Submit My Response</span>
+        </button>
+
+        <p class="footer">🔒 Anonymous & Safe • One response per parent</p>
+    </div>
+
+    <!-- Submitted / Already Voted Section -->
+    <div class="status-card" id="status-card">
+        <div class="status-icon">🎉</div>
+        <h2 class="status-title">Response Recorded!</h2>
+        <p class="status-desc">Thank you for sharing. Look up at the main screen to see the live workshop responses!</p>
+        
+        <div class="user-vote-box">
+            <div class="user-vote-label">Your Selection:</div>
+            <div class="user-vote-text" id="recorded-vote-text">...</div>
+        </div>
+
+        <p class="footer" style="margin-top: 24px;">Note: Each participant can vote once.</p>
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<!-- App Config -->
+<script src="firebase-config.js"></script>
+
+<script>
+    let selectedOptionId = null;
+    let currentUser = null;
+    let db = null;
+    let auth = null;
+
+    // Check Firebase Config
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+        document.getElementById("config-alert").style.display = "block";
+    } else {
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.database();
+            initApp();
+        } catch (e) {
+            console.error("Firebase init error:", e);
+            document.getElementById("config-alert").innerText = "Firebase Error: " + e.message;
+            document.getElementById("config-alert").style.display = "block";
+        }
+    }
+
+    // Render Question and Options
+    function renderQuestion() {
+        const qEl = document.getElementById("poll-question");
+        qEl.innerHTML = POLL_DATA.question.replace("________", '<span class="prompt-blank">________</span>');
+
+        const container = document.getElementById("options-container");
+        container.innerHTML = "";
+
+        POLL_DATA.options.forEach(opt => {
+            const item = document.createElement("div");
+            item.className = "option-item";
+            item.setAttribute("data-id", opt.id);
+            item.onclick = () => selectOption(opt.id, item);
+
+            item.innerHTML = `
+                <div class="custom-radio"></div>
+                <span class="option-icon">${opt.icon || "✨"}</span>
+                <span class="option-text">${opt.text}</span>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    function selectOption(id, element) {
+        selectedOptionId = id;
+        document.querySelectorAll(".option-item").forEach(el => el.classList.remove("selected"));
+        element.classList.add("selected");
+        document.getElementById("submit-btn").disabled = false;
+    }
+
+    // Initialise Auth & check existing vote
+    async function initApp() {
+        renderQuestion();
+
+        // 1. Check local storage first for instant feedback
+        const localVote = localStorage.getItem("parent_voted_option");
+        if (localVote) {
+            showAlreadyVoted(parseInt(localVote, 10));
+        }
+
+        // 2. Anonymous sign-in
+        try {
+            const userCred = await auth.signInAnonymously();
+            currentUser = userCred.user;
+
+            // 3. Verify in Realtime Database if user already voted
+            const voteRef = db.ref("votes/" + currentUser.uid);
+            voteRef.once("value", snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    localStorage.setItem("parent_voted_option", data.optionId);
+                    showAlreadyVoted(data.optionId);
+                }
+            });
+        } catch (err) {
+            console.error("Auth error:", err);
+        }
+    }
+
+    // Show Submitted view
+    function showAlreadyVoted(optionId) {
+        const option = POLL_DATA.options.find(o => o.id === optionId);
+        const optText = option ? `${option.icon || ""} ${option.text}` : "Submitted Choice";
+        document.getElementById("recorded-vote-text").innerText = optText;
+
+        document.getElementById("voting-section").style.display = "none";
+        document.getElementById("status-card").style.display = "block";
+    }
+
+    // Handle Submit
+    const submitBtn = document.getElementById("submit-btn");
+    submitBtn.onclick = async () => {
+        if (!selectedOptionId || !currentUser || !db) return;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="spinner"></div><span>Recording...</span>';
+
+        const voteRef = db.ref("votes/" + currentUser.uid);
+
+        try {
+            // Write vote under user UID (strict 1-vote guarantee)
+            await voteRef.set({
+                optionId: selectedOptionId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            localStorage.setItem("parent_voted_option", selectedOptionId);
+            showAlreadyVoted(selectedOptionId);
+        } catch (err) {
+            console.error("Voting failed:", err);
+            alert("Could not save vote. Please try again or check network connection.");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>Submit My Response</span>';
+        }
+    };
+
+    // Render initially in case offline/preview
+    renderQuestion();
+</script>
+
+</body>
+</html>

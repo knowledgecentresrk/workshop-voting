@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Workshop Results • Projector View</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --card-border: #1e293b;
+            --text-title: #ffffff;
+            --text-body: #cbd5e1;
+            --text-muted: #64748b;
+            --accent-gradient: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-body);
+            min-height: 100vh;
+            padding: 32px 48px;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 28px;
+            gap: 32px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #818cf8;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            margin-bottom: 12px;
+        }
+
+        .main-question {
+            font-size: 34px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: var(--text-title);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .question-blank {
+            color: #818cf8;
+            border-bottom: 3px solid #818cf8;
+            padding-bottom: 2px;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 12px #10b981;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* QR Code Box on Header */
+        .qr-card {
+            background: #ffffff;
+            padding: 12px 14px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+
+        #qrcode {
+            width: 86px;
+            height: 86px;
+        }
+
+        .qr-info {
+            color: #0f172a;
+            text-align: left;
+        }
+
+        .qr-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .qr-sub {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        /* Layout Grid */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Bar Item */
+        .poll-row {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        /* Background Animated Bar */
+        .bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.45) 0%, rgba(139, 92, 246, 0.35) 100%);
+            border-right: 3px solid #818cf8;
+            transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 1;
+        }
+
+        .bar-fill.lead {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.45) 0%, rgba(5, 150, 105, 0.35) 100%);
+            border-right: 3px solid #34d399;
+        }
+
+        /* Row Foreground Content */
+        .row-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .option-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .opt-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .opt-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.01em;
+        }
+
+        .option-stats {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .stat-percentage {
+            font-size: 26px;
+            font-weight: 900;
+            color: #ffffff;
+            min-width: 70px;
+            text-align: right;
+        }
+
+        .stat-count {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Footer Controls */
+        .footer {
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--card-border);
+            padding-top: 16px;
+        }
+
+        .total-counter {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .total-counter span {
+            color: #818cf8;
+            font-size: 20px;
+        }
+
+        .actions-btn {
+            background: transparent;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .actions-btn:hover {
+            color: #ffffff;
+            border-color: #64748b;
+        }
+
+        #config-alert {
+            display: none;
+            background: #7f1d1d;
+            border: 1px solid #b91c1c;
+            color: #fecaca;
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="config-alert">
+        ⚠️ <strong>Firebase Not Configured:</strong> Please update credentials in <code>firebase-config.js</code>.
+    </div>
+
+    <!-- Header Section -->
+    <header class="header">
+        <div class="header-left">
+            <span class="badge">Live Parenting Workshop Poll</span>
+            <h1 class="main-question" id="display-question">Loading question...</h1>
+            <div class="header-meta">
+                <div><span class="pulse-dot"></span>Live Updates Active</div>
+                <div>•</div>
+                <div id="status-text">Waiting for responses...</div>
+            </div>
+        </div>
+
+        <!-- Scan to Vote QR Code -->
+        <div class="qr-card">
+            <div id="qrcode"></div>
+            <div class="qr-info">
+                <div class="qr-title">Scan to Vote</div>
+                <div class="qr-sub">Open camera on phone</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Results Bars Area -->
+    <main class="content-area" id="bars-container">
+        <!-- Live Bars generated here -->
+    </main>
+
+    <!-- Footer Stats & Tools -->
+    <footer class="footer">
+        <div class="total-counter">
+            Total Responses: <span id="total-votes">0</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="actions-btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+            <button class="actions-btn" onclick="resetVotes()">🔄 Reset Poll Data</button>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        let db = null;
+        const totalVotesEl = document.getElementById("total-votes");
+        const statusTextEl = document.getElementById("status-text");
+
+        // Set Question Title
+        document.getElementById("display-question").innerHTML = POLL_DATA.question.replace("________", '<span class="question-blank">________</span>');
+
+        // Render Empty Bar Structure
+        function buildBars() {
+            const container = document.getElementById("bars-container");
+            container.innerHTML = "";
+
+            POLL_DATA.options.forEach(opt => {
+                const row = document.createElement("div");
+                row.className = "poll-row";
+                row.id = `row-${opt.id}`;
+
+                row.innerHTML = `
+                    <div class="bar-fill" id="bar-${opt.id}"></div>
+                    <div class="row-content">
+                        <div class="option-left">
+                            <span class="opt-icon">${opt.icon || "📌"}</span>
+                            <span class="opt-text">${opt.text}</span>
+                        </div>
+                        <div class="option-stats">
+                            <div class="stat-percentage" id="pct-${opt.id}">0%</div>
+                            <div class="stat-count" id="count-${opt.id}">(0)</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        buildBars();
+
+        // Generate QR Code dynamically
+        function setupQRCode() {
+            // Point QR to index.html on current host
+            const currentUrl = window.location.href;
+            const votingUrl = currentUrl.replace(/results\.html(\?.*)?$/i, "index.html");
+
+            new QRCode(document.getElementById("qrcode"), {
+                text: votingUrl,
+                width: 86,
+                height: 86,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        setupQRCode();
+
+        // Init Firebase Listener
+        if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+            document.getElementById("config-alert").style.display = "block";
+        } else {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                listenToVotes();
+            } catch (e) {
+                console.error(e);
+                document.getElementById("config-alert").innerText = "Firebase Error: " + e.message;
+                document.getElementById("config-alert").style.display = "block";
+            }
+        }
+
+        // Real-Time Vote Listener
+        function listenToVotes() {
+            const votesRef = db.ref("votes");
+
+            votesRef.on("value", snapshot => {
+                const votesData = snapshot.val() || {};
+                const uids = Object.keys(votesData);
+                const total = uids.length;
+
+                totalVotesEl.innerText = total;
+
+                // Count votes per option
+                const counts = {};
+                POLL_DATA.options.forEach(o => counts[o.id] = 0);
+
+                uids.forEach(uid => {
+                    const optId = votesData[uid].optionId;
+                    if (counts[optId] !== undefined) {
+                        counts[optId]++;
+                    }
+                });
+
+                // Find highest option to highlight lead
+                let maxCount = 0;
+                Object.values(counts).forEach(c => {
+                    if (c > maxCount) maxCount = c;
+                });
+
+                // Update UI Bars
+                POLL_DATA.options.forEach(opt => {
+                    const count = counts[opt.id] || 0;
+                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
+                    const barEl = document.getElementById(`bar-${opt.id}`);
+                    const pctEl = document.getElementById(`pct-${opt.id}`);
+                    const countEl = document.getElementById(`count-${opt.id}`);
+
+                    if (barEl) {
+                        barEl.style.width = pct + "%";
+                        if (maxCount > 0 && count === maxCount) {
+                            barEl.classList.add("lead");
+                        } else {
+                            barEl.classList.remove("lead");
+                        }
+                    }
+
+                    if (pctEl) pctEl.innerText = pct + "%";
+                    if (countEl) countEl.innerText = `(${count})`;
+                });
+
+                if (total > 0) {
+                    statusTextEl.innerText = `${total} vote${total > 1 ? 's' : ''} received`;
+                } else {
+                    statusTextEl.innerText = "Waiting for responses...";
+                }
+            });
+        }
+
+        // Fullscreen Toggle
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Reset Data (with PIN)
+        function resetVotes() {
+            const pin = prompt("Enter Admin PIN to clear all responses for a new batch:", "");
+            if (pin === "1234") {
+                if (confirm("Are you sure you want to reset all responses to 0?")) {
+                    db.ref("votes").remove()
+                      .then(() => alert("All responses have been reset successfully!"))
+                      .catch(err => alert("Error resetting: " + err.message));
+                }
+            } else if (pin !== null) {
+                alert("Incorrect PIN. (Default is 1234)");
+            }
+        }
+    </script>
+</body>
+</html>
